@@ -5,7 +5,7 @@
 function iniciar() {
 	var campo = [];
 	
-	for(var x = 0; x < 2; x++) {
+	for(var x = 0; x < 50; x++) {
 		var humano = new Humano("h" + (x+1));
 		var maquina = new Maquina("m" + (x+1));
 		var extraterrestre = new Extraterrestre("e" + (x+1));
@@ -64,8 +64,8 @@ function duelos(campo){
 */
 function borrar(paBorrar, campo) {
     //Borramos los elementos despues de terminar la lucha.
-    for(var i = 0; i < paBorrar.length; i++) {
-        campo.splice(paBorrar[i]-i, 1);
+    for(var i = (paBorrar.length -1); i >= 0; i--) {
+        campo.splice(paBorrar[i], 1);
     }
 }
 
