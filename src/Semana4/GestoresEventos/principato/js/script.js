@@ -1,5 +1,17 @@
 function inicializarGestores()
 {
+    
+    var imagenes = ["imagenesCarrusel/fresas.jpg",
+                    "imagenesCarrusel/limon.jpg",
+                    "imagenesCarrusel/mandarinas.jpg",
+                    "imagenesCarrusel/manzanas.jpg",
+                    "imagenesCarrusel/melon.jpg",
+                    "imagenesCarrusel/sesamo.jpg",
+                    "images/heade_ft.jpg"];
+    var index = 0;
+    
+    var reloj = setInterval(cambiarFondo, 5000);
+
 	var imagen = document.getElementById("imagen");
 	imagen.onclick = function()
 	{
@@ -42,11 +54,17 @@ function inicializarGestores()
         ejercicio practico de la semana 4
     */
     
-    var reloj = setInterval(cambiarFondo, 5000);
+    
     
     function cambiarFondo() {
-        var imagen2 = document.getElementById('imagen');
-        imagen2.style.backgroundImage = "url(imagenesCarrusel/fresas.jpg)";
+        var postre = document.getElementById('imagen');
+        postre.style.backgroundImage = "url(" + imagenes[index] + ")";
+        
+        if(index < imagenes.length - 1) {
+            index++;
+        } else {
+            index = 0;
+        }
         
     }
 }
