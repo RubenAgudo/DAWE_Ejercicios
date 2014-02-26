@@ -14,12 +14,14 @@ function obtenerLocalizacion() {
 }
 
 function mostrarLocalizacion(posicion) {
-	var latitud = posicion.coords.latitude;
-	var longitud = posicion.coords.longitude;
-	var div = document.getElementById("localizacion");
-	div.innerHTML = "Latitud de tu posición: " + latitud + ", Longitud: " + longitud;
 
-	showMap(posicion.coords);
+    var latitud = posicion.coords.latitude;
+	var longitud = posicion.coords.longitude;
+    
+    latLong = new google.maps.LatLng(posicion.coords.latitude,posicion.coords.longitude);
+    // Initiate the location request
+    elevacion = new google.maps.ElevationService();
+    obtenerElevacion(latLong);
 
 }
 
@@ -33,6 +35,7 @@ function mostrarError(error) {
 	var errorMessage = errorTypes[error.code];
 	if (error.code == 0 || error.code == 2) {
 		errorMessage = errorMessage + " " + error.message;
+	}
 	var div = document.getElementById("localizacion");
 	div.innerHTML = errorMessage;
 }
@@ -41,47 +44,65 @@ function mostrarError(error) {
 
 var map; // variable global
 var elevacion;
+var latLong;
+var decimals = 100; //100 = 2 decimales, 1000 = 3...
 
-function showMap(coords) {
-
-	var googleLatAndLong = new google.maps.LatLng(coords.latitude,coords.longitude);
+function showMap(elevacion) {
 
 	var mapOptions = {
 		zoom: 10,
-		center: googleLatAndLong,
+		center: latLong,
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
 
 	var mapDiv = document.getElementById("mapa");
 	map = new google.maps.Map(mapDiv, mapOptions);
-    
-    //Creamos el servicio de elevacion
-    elevacion = new google.maps.ElevationService();
-    var elevacionMetros = obtenerElevacion(googleLatAndLong);
-    
+
 	var titulo = "Tu geoposición";
-	var contenido = "Latitud: " + coords.latitude + ", Longitud:" + coords.longitude + "Elevacion: " + elevacionMetros;
-	addMarker(map, googleLatAndLong, titulo, contenido);
+	contenido = "Latitud: " + latLong.d + ", Longitud:" + latLong.e + ", elevacion: " + elevacion;
+    
+	addMarker(map, latLong, titulo, contenido);
 
 }
 
-function obtenerElevacion(latlong) {
+function obtenerElevacion(latLong, contenido) {
+    
+    var locations = [];
+    locations.push(latLong);
+    
     var positionalRequest = {
-        'locations': [latlong]
-    };
-    elevacion.getElevationForLocations(positionalRequest, function(results, status){
-        if(status == google.maps.ElevationStatus.OK) {
-            if(results[0]) {
-                return results[0].elevation;
-            } else {
-                alert('No results found');
-            }
+        'locations': locations
+    }
+
+    elevacion.getElevationForLocations(positionalRequest, resultadoElevacion);
+}
+
+function resultadoElevacion(results, status) {
+    if (status == google.maps.ElevationStatus.OK) {
+
+        // Retrieve the first result
+        if (results[0]) {
+            var coords = results[0];
+            var elevacionMetros = Math.round(coords.elevation*decimals)/decimals;
+                
+            var div = document.getElementById("localizacion");
+            div.innerHTML = "Latitud de tu posición: " + latLong.d + ", Longitud: " + latLong.e;
+            div.innerHTML += " Elevacion: " + elevacionMetros;
+
+            showMap(elevacionMetros);
+            
+        } else {
+            elevacionMetros = NaN;
         }
-    });
+    } else {
+        elevacionMetros = null;
+        //alert('Elevation service failed due to: ' + status);
+    }
 }
 
 function addMarker(mapa, latlong, titulo, contenido) 
 {
+
 	var markerOptions = {
 		position: latlong,
 		map: mapa,
