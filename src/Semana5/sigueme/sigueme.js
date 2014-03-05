@@ -53,7 +53,7 @@ function mostrarMapa(coords) {
 	var mapDiv = document.getElementById("map");
 	map = new google.maps.Map(mapDiv, mapOptions);
 
-    if(coords.altitude === 0) { //si no nos devuelve la altitud la calculamos.
+    if(coords.altitude === 0 || coords.altitude === null || coords.altitude === NaN) { //si no nos devuelve la altitud la calculamos.
         elevation = new google.maps.ElevationService();
         obtenerElevacion(googleLatAndLong);
     } else {
@@ -73,7 +73,7 @@ function centrarMapa(coords) {
 
 	map.panTo(latlong);
     
-    if(coords.altitude === 0) { //si no nos devuelve la altitud la calculamos.
+    if(coords.altitude === 0 || coords.altitude === null || coords.altitude === NaN) { //si no nos devuelve la altitud la calculamos.
         //no es necesario volver a instanciar el 
         //elevation service, esta hecho de antes.
         obtenerElevacion(latlong);
