@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+	<title>El tiempo</title>
+    
+	<script src="semana6.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+</head>
+<body>
+    <div>
+        <select id="capital">
+            <option value="Bilbao,es" selected>Bilbao</option>
+            <option value="Donostia,es">Donostia</option>
+            <option value="Vitoria,es">Vitoria</option>
+        </select>
+        
+        <input type="button" id="enviar" value="Previsión para los próximos 3 días" onclick=obtenerDatos(); />
+    </div>
+	<div id="info">
+		
+	</div>
+	
+</body>
+</html>
+
+
