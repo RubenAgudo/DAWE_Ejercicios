@@ -1,0 +1,22 @@
+/* videocanvas.css */
+
+/* video */
+div#videoDiv {
+	position: relative;
+	width: 720px;
+	height: 480px;
+	top: 60px;
+	left: 190px;
+}
+video {
+	background-color: black;
+}
+div#videoDiv canvas {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+canvas#buffer {
+	display: none;
+}
+
