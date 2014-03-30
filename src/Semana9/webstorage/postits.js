@@ -1,7 +1,7 @@
 /* postits.js
  *
  */
-var keys = [];
+var keys = []; //we save the keys of the postits to track them
 window.onload = init;
 
 function init() {
@@ -33,6 +33,10 @@ function createSticky() {
 	// EJERCICIO B
     // crear la nota con nombre postit_X, donde X es un número entero
 	// (postit_1, postit_2, ...)  y guardarla en el localStorage
+    // 
+    // keys.length > postit number, so we use it to
+    // create the new key, and then we update
+    // keys
     localStorage["postit_" + keys.length] = value;	
     keys.push("postit_" + keys.length);
 	addStickyToDOM(value);
@@ -57,6 +61,9 @@ function clearStickyNotes() {
 	// obtener una referencia a la capa "stickies"
 	// recorrer los hijos (childNodes) de esa referencia,
 	// eliminándolos uno a uno (removeChild)
+    //
+    // Created two functions, one to remove the postits in the screen,
+    // and another one to delete the localStorage and the keys array
     clearVisualNotes();
     clearLocalStorageNotes();
 }
@@ -65,6 +72,8 @@ function clearVisualNotes() {
     
     var stickies = document.getElementById("stickies");
     var stickyQuantity = stickies.childNodes.length;
+    //Always remove the first element because
+    //the length changes dinamically
     for(var i = 0; i < stickyQuantity; i++) {
         var sticky = stickies.childNodes[0];
         stickies.removeChild(sticky);
