@@ -24,6 +24,10 @@ var gMoveCountElem;
 var gGameInProgress;
 
 var gTurno = kBlancas; //guardamos el color del turno actual
+//matriz de 3 dimensiones en la que guardamos que posicion esta ocupada con un color
+//asi sabemos que posicion esta ocupada y si se puede hacer un salto
+var tablero; 
+
 
 function getCursorPosition(e) {
 	/* returns Cell with .row and .column properties */
@@ -129,15 +133,26 @@ function cargarPosiciones() {
 	drawBoard();
 }
 function newGame() {
+
+    tablero = new Array();
+
 	for (var i=0; i< kFilasIniciales; i++){
+
+        tablero[i] = new Array();
+
 		for (var j=(i+1)%2; j < kBoardHeight; j=j+2) {
 			piezas.push(new Casilla(i,j, kNegras));
+            tablero[i][j] = kNegras;
 		}
 	}
 
 	for (var i=kBoardHeight-1; i >= kBoardHeight - kFilasIniciales; i--){
+
+        tablero[i] = new Array();
+
 		for (var j=(i+1)%2; j < kBoardHeight; j=j+2) {
 			piezas.push(new Casilla(i,j, kBlancas));
+            tablero[i][j] = kBlancas;
 		}
 	}
 
@@ -235,3 +250,50 @@ function iniciarJuego(canvasElement, moveCountElement) {
     newGame();
 }
 
+////////////////////////////////////////////////////////////////////////////
+//clase Move
+function Move(r1, c1, r2, c2) {
+    this.fromRow = r1;
+    this.fromCol = c1;
+    this.toRow = r2;
+    this.toCol = c2;
+
+}
+
+function getLegalMoves() {
+
+    var legalMoves;
+
+    for (var i = 0, l = piezas.length; i < l; i ++) {
+        var unaPieza = piezas[i];
+
+        if(unaPieza.color == kBlancas) {  
+        
+            if(unaPieza.column == 0) {
+                //solo miramos la columna +1
+            } else if(unaPieza.column == kBoardWidth -1) {
+                //solo miramos la columna -1 
+                //pieza de arriba a la derecha
+            }else if(tablero[unaPieza.row - 1][unaPieza.column + 1] == null) {
+                legalMoves.push(new Move(
+                            unaPieza.row, 
+                            unaPieza.column, 
+                            unaPieza.row -1, 
+                            unaPieza.column + 1));
+            //pieza de arriba a la izquierda
+            } else if(tablero[unaPieza.row - 1][unaPieza.column - 1] == null) {
+                legalMoves.push(new Move(
+                            unaPieza.row, 
+                            unaPieza.column, 
+                            unaPieza.row -1, 
+                            unaPieza.column - 1)); 
+            //ahora se comprobaria si se pueden realizar saltos
+            } else if(tablero[unaPieza.row - 1][unaPieza.column - 1] == null) {
+            
+            }
+        }
+       
+    }
+
+    return legalMoves;
+}
