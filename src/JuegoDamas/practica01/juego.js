@@ -26,7 +26,7 @@ var gGameInProgress;
 var gTurno = kBlancas; //guardamos el color del turno actual
 //matriz de 3 dimensiones en la que guardamos que posicion esta ocupada con un color
 //asi sabemos que posicion esta ocupada y si se puede hacer un salto
-var tablero; 
+var tablero = inicializarTablero(); 
 
 
 function getCursorPosition(e) {
@@ -63,7 +63,7 @@ function endGame(){
 
 function drawBoard() {
     if (gGameInProgress && isTheGameOver()) {
-	endGame();
+        endGame();
     }
 
     gDrawingContext.clearRect(0, 0, kPixelWidth, kPixelHeight);
@@ -72,22 +72,28 @@ function drawBoard() {
    
     /* vertical lines */
     for (var x = 0; x <= kPixelWidth; x += kPieceWidth) {
-	gDrawingContext.moveTo(0.5 + x, 0);
-	gDrawingContext.lineTo(0.5 + x, kPixelHeight);
+        gDrawingContext.moveTo(0.5 + x, 0);
+        gDrawingContext.lineTo(0.5 + x, kPixelHeight);
     }
     
     /* horizontal lines */
     for (var y = 0; y <= kPixelHeight; y += kPieceHeight) {
-	gDrawingContext.moveTo(0, 0.5 + y);
-	gDrawingContext.lineTo(kPixelWidth, 0.5 +  y);
+        gDrawingContext.moveTo(0, 0.5 + y);
+        gDrawingContext.lineTo(kPixelWidth, 0.5 +  y);
     }
     
     /* draw it! */
     gDrawingContext.strokeStyle = "#ccc";
     gDrawingContext.stroke();
     
+    //inicializamos el tablero antes de pintar las piezas (y de rellenar el tablero)
+    tablero = inicializarTablero();
+
     for (var i = 0; i < piezas.length; i++) {
-	drawPiece(piezas[i], piezas[i].color, i == gSelectedPieceIndex);
+        
+        tablero[piezas[i].row][piezas[i].column] = piezas[i].color;
+
+        drawPiece(piezas[i], piezas[i].color, i == gSelectedPieceIndex);
     }
 
 
@@ -134,25 +140,17 @@ function cargarPosiciones() {
 }
 function newGame() {
 
-    tablero = new Array();
-
 	for (var i=0; i< kFilasIniciales; i++){
-
-        tablero[i] = new Array();
 
 		for (var j=(i+1)%2; j < kBoardHeight; j=j+2) {
 			piezas.push(new Casilla(i,j, kNegras));
-            tablero[i][j] = kNegras;
 		}
 	}
 
 	for (var i=kBoardHeight-1; i >= kBoardHeight - kFilasIniciales; i--){
 
-        tablero[i] = new Array();
-
 		for (var j=(i+1)%2; j < kBoardHeight; j=j+2) {
 			piezas.push(new Casilla(i,j, kBlancas));
-            tablero[i][j] = kBlancas;
 		}
 	}
 
@@ -262,38 +260,77 @@ function Move(r1, c1, r2, c2) {
 
 function getLegalMoves() {
 
-    var legalMoves;
+    var legalMoves = new Array();
 
     for (var i = 0, l = piezas.length; i < l; i ++) {
         var unaPieza = piezas[i];
 
         if(unaPieza.color == kBlancas) {  
         
-            if(unaPieza.column == 0) {
-                //solo miramos la columna +1
-            } else if(unaPieza.column == kBoardWidth -1) {
-                //solo miramos la columna -1 
-                //pieza de arriba a la derecha
-            }else if(tablero[unaPieza.row - 1][unaPieza.column + 1] == null) {
-                legalMoves.push(new Move(
-                            unaPieza.row, 
-                            unaPieza.column, 
-                            unaPieza.row -1, 
-                            unaPieza.column + 1));
-            //pieza de arriba a la izquierda
-            } else if(tablero[unaPieza.row - 1][unaPieza.column - 1] == null) {
-                legalMoves.push(new Move(
-                            unaPieza.row, 
-                            unaPieza.column, 
-                            unaPieza.row -1, 
-                            unaPieza.column - 1)); 
-            //ahora se comprobaria si se pueden realizar saltos
-            } else if(tablero[unaPieza.row - 1][unaPieza.column - 1] == null) {
-            
+            var topeIzq= topeIzquierda(unaPieza);
+            var topeDer= topeDerecha(unaPieza);
+            var coronada = haCoronado(unaPieza);
+
+            if(!topeIzq && !coronada) {
+                if(tablero[unaPieza.row - 1][unaPieza.column - 1] == undefined) {
+                    legalMoves.push(new Move(
+                                unaPieza.row,
+                                unaPieza.column,
+                                unaPieza.row - 1,
+                                unaPieza.column - 1)); 
+                } else if(tablero[unaPieza.row - 1][unaPieza.column - 1] == kNegras &&
+                            tablero[unaPieza.row - 2][unaPieza.column - 2] == undefined) {
+                     
+                    legalMoves.push(new Move(
+                                unaPieza.row,
+                                unaPieza.column,
+                                unaPieza.row - 2,
+                                unaPieza.column - 2)); 
+                }
             }
+
+            if(!topeDer && !coronada) {
+                if(tablero[unaPieza.row - 1][unaPieza.column + 1] == undefined) {
+                    legalMoves.push(new Move(
+                                unaPieza.row,
+                                unaPieza.column,
+                                unaPieza.row - 1,
+                                unaPieza.column + 1)); 
+                } else if(tablero[unaPieza.row - 1][unaPieza.column + 1] == kNegras &&
+                            tablero[unaPieza.row - 2][unaPieza.column + 2] == undefined) {
+                     
+                    legalMoves.push(new Move(
+                                unaPieza.row,
+                                unaPieza.column,
+                                unaPieza.row - 2,
+                                unaPieza.column + 2)); 
+                }
+            }
+           
         }
        
     }
 
     return legalMoves;
+}
+
+function topeIzquierda(pieza) {
+    return pieza.column == 0;
+}
+
+function topeDerecha(pieza) {
+    return pieza.column == kBoardWidth - 1;
+}
+
+function haCoronado(pieza) {
+    return pieza.row == 0;
+}
+
+function inicializarTablero() {
+    var unTablero = new Array(kBoardWidth);
+    for (var i = 0; i < kBoardWidth; i++) {
+        unTablero[i] = new Array(kBoardHeight);
+    }
+
+    return unTablero;
 }
