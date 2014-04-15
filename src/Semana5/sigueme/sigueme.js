@@ -139,19 +139,19 @@ function resultadoElevacion(results, status) {
             var elevacionMetros = Math.round(coords.elevation*decimals)/decimals;
             
             var latlong = 
-                   new google.maps.LatLng(coords.location.d, coords.location.e);
+                   new google.maps.LatLng(coords.location.k, coords.location.A);
             
             //miramos si es la primera vez que te localiza
             //para mostrar un texto u otro.
             if(firstTracking) {
                 var title = "Tu geolocalización:";
-                var content = "Latitud: " + latlong.d + ", Longitud: " + 
-                        latlong.e + ", altitud: " + elevacionMetros;
+                var content = "Latitud: " + latlong.k + ", Longitud: " + 
+                        latlong.A + ", altitud: " + elevacionMetros;
                 firstTracking = false;
             } else {
                 var title = "Tu nueva localizacion:";
-                var content = "Te has movido a: " + latlong.d + ", " + 
-                        latlong.e + ", altitud: " + elevacionMetros;
+                var content = "Te has movido a: " + latlong.k + ", " + 
+                        latlong.A + ", altitud: " + elevacionMetros;
             }
             addMarker(map, latlong, title, content);
             
