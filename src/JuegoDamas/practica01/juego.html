@@ -8,7 +8,18 @@
 <body>
 <h1>Damas inglesas</h1>
 <p id="movimientos">Movimientos: <span id="count">0</span></p>
-<canvas id="lienzo" width="600" height="300">
+<canvas id="lienzo" width="600" height="300"></canvas>
+
+<div id="movimientosRealizados">
+    <div id="negras">
+        <h2>Negras</h2>
+    </div>
+
+    <div id="blancas">
+        <h2>Blancas</h2>
+    </div>
+</div>
+
 <script>
   iniciarJuego(document.getElementById('lienzo'), document.getElementById('count'));
 </script>

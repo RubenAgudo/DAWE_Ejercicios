@@ -168,9 +168,37 @@ function Casilla(row, column, color) {
     this.color = color;
 }
 
+/**
+ * casilla1: origen
+ * casilla2: destino
+ */
 function isThereAPieceBetween(casilla1, casilla2) {
-	console.log("Sin hacer...");
-	return true;
+    var direccion = 0;
+    var fila = casilla1.row - 1; //no comprobamos nuestra propia fila
+    var columna = 0;
+    //sabemos que la diagonal es una funcion y = x
+    //solo hay que saber en que direccion hay que moverse
+    if(casilla1.column > casilla2.column) {
+        columna = casilla1.column - 1;
+        direccion = -1;
+    } else {
+        columna = casilla1.column + 1;
+        direccion = 1;
+    }
+
+    var salir = false;
+    var resultado = false;
+    //nos desplazamos en diagonal hasta que encontremos una pieza
+    while(fila > casilla2.row && columna != casilla2.column && !salir ) {
+        if(tablero[fila][columna] != undefined || tablero[fila][columna] != null) {
+            salir = true;
+            resultado = true;
+        }
+        fila--;
+        columna += direccion;
+    }
+
+    return resultado;
 }
 
 function clickOnEmptyCell(cell) {
@@ -183,13 +211,20 @@ function clickOnEmptyCell(cell) {
     if (Math.abs(rowDiff) == 1 && Math.abs(columnDiff) == 1) {
         /* we already know that this click was on an empty square,
         so that must mean this was a valid single-square move */
+
+        var fromRow = piezas[gSelectedPieceIndex].row,
+            fromColumn = piezas[gSelectedPieceIndex].column,
+            toRow = cell.row,
+            toColumn = cell.column,
+            color = piezas[gSelectedPieceIndex].color;
+
         piezas[gSelectedPieceIndex].row = cell.row;
         piezas[gSelectedPieceIndex].column = cell.column;
         gMoveCount += 1;
         gSelectedPieceIndex = -1;
         gSelectedPieceHasMoved = false;
 
-        //cambiamos el turno
+        //cambiamos el turno cuando se mueve una pieza y no se come
         if(gTurno == kBlancas) {
             gTurno = kNegras;
         } else {
@@ -197,18 +232,36 @@ function clickOnEmptyCell(cell) {
         }
 
         drawBoard();
+        mostrarMovimiento(fromRow, 
+                fromColumn,
+                toRow, 
+                toColumn,
+                color);
         return;
     }
-    if ( ( direccion==kBlancas && rowDiff == -2 && Math.abs(columnDiff == 2) ) && 
+    if ( ( direccion==kBlancas && rowDiff == -2 && Math.abs(columnDiff) == 2)  && 
         isThereAPieceBetween(piezas[gSelectedPieceIndex], cell)) {
         /* this was a valid jump */
         if (!gSelectedPieceHasMoved) {
             gMoveCount += 1;
         }
+        var fromRow = piezas[gSelectedPieceIndex].row,
+            fromColumn = piezas[gSelectedPieceIndex].column,
+            toRow = cell.row,
+            toColumn = cell.column,
+            color = piezas[gSelectedPieceIndex].color;
         gSelectedPieceHasMoved = true;
         piezas[gSelectedPieceIndex].row = cell.row;
         piezas[gSelectedPieceIndex].column = cell.column;
+        //y por aqui habria que borrar la pieza
+        borrarPieza((fromRow + toRow) / 2, (fromColumn + toColumn) / 2);
+
         drawBoard();
+        mostrarMovimiento(fromRow, 
+                fromColumn,
+                toRow, 
+                toColumn,
+                color);
         return;
     }
     gSelectedPieceIndex = -1;
@@ -258,6 +311,9 @@ function Move(r1, c1, r2, c2) {
 
 }
 
+/**
+ * solo tenemos en cuenta los movimientos posibles de las blancas
+ */
 function getLegalMoves() {
 
     var legalMoves = new Array();
@@ -333,4 +389,30 @@ function inicializarTablero() {
     }
 
     return unTablero;
+}
+
+/**
+ * Muestra los movimientos que se van realizando
+ */
+function mostrarMovimiento(fromRow, fromColumn, toRow, toColumn, color) {
+    var movimientosRealizados;
+
+    if(color == kNegras) { 
+        movimientosRealizados = document.getElementById("negras");
+    } else {
+        movimientosRealizados = document.getElementById("blancas");
+    }
+    var nuevoMovimiento = document.createElement("p");
+    nuevoMovimiento.innerHTML = "(" + fromRow + ", " + fromColumn +") --> (" + toRow + ", " + toColumn + ")";
+    movimientosRealizados.appendChild(nuevoMovimiento);
+}
+
+function borrarPieza(row, column) {
+    for (var i = 0; i < piezas.length; i++) {
+        var unaPieza = piezas[i];
+        if(unaPieza.row == row && unaPieza.column == column) {
+            piezas.pop(unaPieza);
+            return;
+        }
+    };
 }
