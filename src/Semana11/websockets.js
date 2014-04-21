@@ -1,4 +1,4 @@
-var socket = new WebSocket("ws://localhost:8092/ws/demo");
+var socket = new WebSocket("ws://192.0.0.1:8092/ws/demo");
 
 var max = 1000;
 var min = 0;

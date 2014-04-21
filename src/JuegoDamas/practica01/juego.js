@@ -271,7 +271,7 @@ function clickOnEmptyCell(cell) {
 
 function gestorClick(e){
 	var casilla = getCursorPosition(e);
-	for (var i = 0; i < gNumPieces; i++) {
+	for (var i = 0; i < piezas.length; i++) {
 		if ((piezas[i].row == casilla.row) && 
 				(piezas[i].column == casilla.column)) {
 					clickOnPiece(i);
@@ -411,7 +411,7 @@ function borrarPieza(row, column) {
     for (var i = 0; i < piezas.length; i++) {
         var unaPieza = piezas[i];
         if(unaPieza.row == row && unaPieza.column == column) {
-            piezas.pop(unaPieza);
+            piezas.splice(i, 1);
             return;
         }
     };
