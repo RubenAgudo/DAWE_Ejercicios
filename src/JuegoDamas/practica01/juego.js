@@ -262,7 +262,7 @@ function clickOnEmptyCell(cell) {
         return;
     }
     if ( ( Math.abs(rowDiff) == 2 && Math.abs(columnDiff) == 2)  && 
-        isThereAPieceBetween(piezas[gSelectedPieceIndex], cell)) {
+        isThereAPieceBetween(piezas[gSelectedPieceIndex], cell) && isLegalMove(piezas[gSelectedIndex], cell) {
         /* this was a valid jump */
         if (!gSelectedPieceHasMoved) {
             gMoveCount += 1;
@@ -356,44 +356,60 @@ function getLegalMoves(color) {
             if(unaPieza instanceof Reina) {
 
             } else {
-
-                //moverIzquierda(topeIzq, coronada, legalMoves, unaPieza);
                 
+                var direccionFilas = 0;
+                var direccionColumnas = 0;
+                var filasAMoverse = 0;
+                var columnasAMoverse = 0;
+
+                if(color === kBlancas) {
+                    direccionFilas--;
+                } else {
+                    direccionFilas++;
+                }
+               
+                var toRow, toColumn; 
+
                 if(!topeIzq && !coronada) {
-                    if(tablero[unaPieza.row - 1][unaPieza.column - 1] == undefined) {
-                        legalMoves.push(new Move(
-                                    unaPieza.row,
-                                    unaPieza.column,
-                                    unaPieza.row - 1,
-                                    unaPieza.column - 1)); 
-                    } else if(tablero[unaPieza.row - 1][unaPieza.column - 1] == kNegras &&
-                                tablero[unaPieza.row - 2][unaPieza.column - 2] == undefined) {
+                    direccionColumnas = -1;
+                    if(tablero[unaPieza.row + direccionFilas][unaPieza.column + direccionColumnas] == undefined) {
+                        
+                        toRow = unaPieza.row + direccionFilas;
+                        toColumn = unaPieza.column + direccionColumnas;
+
+                    } else if(tablero[unaPieza.row + direccionFilas][unaPieza.column + direccionColumnas ] == kNegras) {
+                        filasAMoverse = 2;
+                        columnasAMoverse = 2;
+                        if(destinoEstaDentroDeTablero(unaPieza, direccionFilas, direccionColumnas, filasAMoverse, columnasAMoverse) {
+                        
+                            toRow = unaPieza.row + (direccionFilas * 2);
+                            toColumn = unaPieza.column + (direccionColumnas * 2);
+                        }
+
                          
-                        legalMoves.push(new Move(
-                                    unaPieza.row,
-                                    unaPieza.column,
-                                    unaPieza.row - 2,
-                                    unaPieza.column - 2)); 
                     }
                 }
 
                 if(!topeDer && !coronada) {
-                    if(tablero[unaPieza.row - 1][unaPieza.column + 1] == undefined) {
-                        legalMoves.push(new Move(
-                                    unaPieza.row,
-                                    unaPieza.column,
-                                    unaPieza.row - 1,
-                                    unaPieza.column + 1)); 
-                    } else if(tablero[unaPieza.row - 1][unaPieza.column + 1] == kNegras &&
+                    if(tablero[unaPieza.row + direccion][unaPieza.column + 1] == undefined) {
+
+                        toRow = unaPieza.row + direccion;
+                        toColumn = unaPieza.column + 1;
+
+                    } else if(tablero[unaPieza.row + direccion][unaPieza.column + 1] == kNegras &&
                                 tablero[unaPieza.row - 2][unaPieza.column + 2] == undefined) {
-                         
-                        legalMoves.push(new Move(
-                                    unaPieza.row,
-                                    unaPieza.column,
-                                    unaPieza.row - 2,
-                                    unaPieza.column + 2)); 
+
+                        toRow = unaPieza.row - 1;
+                        toColumn = unaPieza.column - 1;
+
                     }
                 }
+
+                legalMoves.push(new Move(
+                            unaPieza.row,
+                            unaPieza.column,
+                            toRow,
+                            toColumn));
             }
            
         }
@@ -401,27 +417,6 @@ function getLegalMoves(color) {
     }
 
     return legalMoves;
-}
-
-function moverIzquierda(topeIzq, coronada, legalMoves, unaPieza) {
-
-    if(!topeIzq && !coronada) {
-        if(tablero[unaPieza.row - 1][unaPieza.column - 1] == undefined) {
-            legalMoves.push(new Move(
-                        unaPieza.row,
-                        unaPieza.column,
-                        unaPieza.row - 1,
-                        unaPieza.column - 1)); 
-        } else if(tablero[unaPieza.row - 1][unaPieza.column - 1] == kNegras &&
-                    tablero[unaPieza.row - 2][unaPieza.column - 2] == undefined) {
-             
-            legalMoves.push(new Move(
-                        unaPieza.row,
-                        unaPieza.column,
-                        unaPieza.row - 2,
-                        unaPieza.column - 2)); 
-        }
-    }
 }
 
 function topeIzquierda(pieza) {
@@ -469,4 +464,28 @@ function borrarPieza(row, column) {
             return;
         }
     };
+}
+
+function isLegalMove(origen, destino) {
+    var legalMoves = getLegalMoves(gTurno);
+    var isLegal = false;
+    var ind = 0;
+    while(ind < legalMoves.length && !isLegal) {
+        var move = legalMoves[ind];
+        if((move.fromRow === origen.row && move.fromColumn === origen.column)&&
+           (move.toRow === destino.row && move.toColumn === destino.column)) {
+                isLegal = true;
+        }
+        ind++;
+    }
+    return isLegal;
+}
+
+function destinoEstaDentroDeTablero(pieza, direccionFilas, direccionColumnas, filasAMoverse, columnasAMoverse) {
+    var columnaDestino = unaPieza.column +(direccionColumnas * columnasAMoverse);
+    var filaDestino = unaPieza.row + (direccionFilas * filasAMoverse);
+    return ((columnaDestino >= 0 &&
+            columnaDestino < kBoardWidth) &&
+           (filaDestino >= 0 &&
+            filaDesdino < kBoardHeight))
 }
