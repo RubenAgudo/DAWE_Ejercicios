@@ -54,7 +54,20 @@ function gGameInProgress(){
 }
 
 function isTheGameOver(){
-	return false;
+    var legalMoves =[1]; 
+    var resultado = false;
+    var ganador;
+    if(legalMoves.length === 0) {
+        resultado = true;
+        if(gTurno === kBlancas) {
+            ganador = "negras";
+        } else {
+            ganador = "blancas";
+        }
+        console.log("Game OVer. Ganan " + ganador);
+    }
+
+    return resultado;
 }
 
 function endGame(){
@@ -173,29 +186,36 @@ function Casilla(row, column, color) {
  * casilla2: destino
  */
 function isThereAPieceBetween(casilla1, casilla2) {
-    var direccion = 0;
-    var fila = casilla1.row - 1; //no comprobamos nuestra propia fila
+    var direccionColumna = 0,
+        direccionFila = 0;
+    
     var columna = 0;
     //sabemos que la diagonal es una funcion y = x
     //solo hay que saber en que direccion hay que moverse
     if(casilla1.column > casilla2.column) {
         columna = casilla1.column - 1;
-        direccion = -1;
+        direccionColumna = -1;
     } else {
         columna = casilla1.column + 1;
-        direccion = 1;
+        direccionColumna = 1;
     }
 
+    if(gTurno === kBlancas) {
+        direccionFila = -1;
+    } else {
+        direccionFila = 1;
+    }
+    var fila = casilla1.row + direccionFila; //no comprobamos nuestra fila 
     var salir = false;
     var resultado = false;
     //nos desplazamos en diagonal hasta que encontremos una pieza
-    while(fila > casilla2.row && columna != casilla2.column && !salir ) {
+    while(fila != casilla2.row && columna != casilla2.column && !salir ) {
         if(tablero[fila][columna] != undefined || tablero[fila][columna] != null) {
             salir = true;
             resultado = true;
         }
-        fila--;
-        columna += direccion;
+        fila += direccionFila;
+        columna += direccionColumna;
     }
 
     return resultado;
@@ -205,6 +225,8 @@ function clickOnEmptyCell(cell) {
     if (gSelectedPieceIndex == -1) { return; }
    
     var direccion = piezas[gSelectedPieceIndex].color; 
+
+    //var legalMoves = getLegalMoves(direccion);
 
     var rowDiff = cell.row - piezas[gSelectedPieceIndex].row;
     var columnDiff = cell.column - piezas[gSelectedPieceIndex].column;
@@ -239,7 +261,7 @@ function clickOnEmptyCell(cell) {
                 color);
         return;
     }
-    if ( ( direccion==kBlancas && rowDiff == -2 && Math.abs(columnDiff) == 2)  && 
+    if ( ( Math.abs(rowDiff) == 2 && Math.abs(columnDiff) == 2)  && 
         isThereAPieceBetween(piezas[gSelectedPieceIndex], cell)) {
         /* this was a valid jump */
         if (!gSelectedPieceHasMoved) {
@@ -311,55 +333,66 @@ function Move(r1, c1, r2, c2) {
 
 }
 
+function Reina(row, column, color) {
+    Casilla.apply(this, [row, column, color]);
+}
+
 /**
  * solo tenemos en cuenta los movimientos posibles de las blancas
  */
-function getLegalMoves() {
+function getLegalMoves(color) {
 
     var legalMoves = new Array();
 
     for (var i = 0, l = piezas.length; i < l; i ++) {
         var unaPieza = piezas[i];
 
-        if(unaPieza.color == kBlancas) {  
+        if(unaPieza.color == color) {  
         
             var topeIzq= topeIzquierda(unaPieza);
             var topeDer= topeDerecha(unaPieza);
             var coronada = haCoronado(unaPieza);
+            //Si es una reina hacemos un tipo de comprobacion, si no, hacemos la otra
+            if(unaPieza instanceof Reina) {
 
-            if(!topeIzq && !coronada) {
-                if(tablero[unaPieza.row - 1][unaPieza.column - 1] == undefined) {
-                    legalMoves.push(new Move(
-                                unaPieza.row,
-                                unaPieza.column,
-                                unaPieza.row - 1,
-                                unaPieza.column - 1)); 
-                } else if(tablero[unaPieza.row - 1][unaPieza.column - 1] == kNegras &&
-                            tablero[unaPieza.row - 2][unaPieza.column - 2] == undefined) {
-                     
-                    legalMoves.push(new Move(
-                                unaPieza.row,
-                                unaPieza.column,
-                                unaPieza.row - 2,
-                                unaPieza.column - 2)); 
+            } else {
+
+                //moverIzquierda(topeIzq, coronada, legalMoves, unaPieza);
+                
+                if(!topeIzq && !coronada) {
+                    if(tablero[unaPieza.row - 1][unaPieza.column - 1] == undefined) {
+                        legalMoves.push(new Move(
+                                    unaPieza.row,
+                                    unaPieza.column,
+                                    unaPieza.row - 1,
+                                    unaPieza.column - 1)); 
+                    } else if(tablero[unaPieza.row - 1][unaPieza.column - 1] == kNegras &&
+                                tablero[unaPieza.row - 2][unaPieza.column - 2] == undefined) {
+                         
+                        legalMoves.push(new Move(
+                                    unaPieza.row,
+                                    unaPieza.column,
+                                    unaPieza.row - 2,
+                                    unaPieza.column - 2)); 
+                    }
                 }
-            }
 
-            if(!topeDer && !coronada) {
-                if(tablero[unaPieza.row - 1][unaPieza.column + 1] == undefined) {
-                    legalMoves.push(new Move(
-                                unaPieza.row,
-                                unaPieza.column,
-                                unaPieza.row - 1,
-                                unaPieza.column + 1)); 
-                } else if(tablero[unaPieza.row - 1][unaPieza.column + 1] == kNegras &&
-                            tablero[unaPieza.row - 2][unaPieza.column + 2] == undefined) {
-                     
-                    legalMoves.push(new Move(
-                                unaPieza.row,
-                                unaPieza.column,
-                                unaPieza.row - 2,
-                                unaPieza.column + 2)); 
+                if(!topeDer && !coronada) {
+                    if(tablero[unaPieza.row - 1][unaPieza.column + 1] == undefined) {
+                        legalMoves.push(new Move(
+                                    unaPieza.row,
+                                    unaPieza.column,
+                                    unaPieza.row - 1,
+                                    unaPieza.column + 1)); 
+                    } else if(tablero[unaPieza.row - 1][unaPieza.column + 1] == kNegras &&
+                                tablero[unaPieza.row - 2][unaPieza.column + 2] == undefined) {
+                         
+                        legalMoves.push(new Move(
+                                    unaPieza.row,
+                                    unaPieza.column,
+                                    unaPieza.row - 2,
+                                    unaPieza.column + 2)); 
+                    }
                 }
             }
            
@@ -368,6 +401,27 @@ function getLegalMoves() {
     }
 
     return legalMoves;
+}
+
+function moverIzquierda(topeIzq, coronada, legalMoves, unaPieza) {
+
+    if(!topeIzq && !coronada) {
+        if(tablero[unaPieza.row - 1][unaPieza.column - 1] == undefined) {
+            legalMoves.push(new Move(
+                        unaPieza.row,
+                        unaPieza.column,
+                        unaPieza.row - 1,
+                        unaPieza.column - 1)); 
+        } else if(tablero[unaPieza.row - 1][unaPieza.column - 1] == kNegras &&
+                    tablero[unaPieza.row - 2][unaPieza.column - 2] == undefined) {
+             
+            legalMoves.push(new Move(
+                        unaPieza.row,
+                        unaPieza.column,
+                        unaPieza.row - 2,
+                        unaPieza.column - 2)); 
+        }
+    }
 }
 
 function topeIzquierda(pieza) {
