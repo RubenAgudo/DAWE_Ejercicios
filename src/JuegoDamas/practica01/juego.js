@@ -230,7 +230,7 @@ function clickOnEmptyCell(cell) {
 
     var rowDiff = cell.row - piezas[gSelectedPieceIndex].row;
     var columnDiff = cell.column - piezas[gSelectedPieceIndex].column;
-    if (Math.abs(rowDiff) == 1 && Math.abs(columnDiff) == 1) {
+    if (Math.abs(rowDiff) == 1 && Math.abs(columnDiff) == 1 && isLegalMove(piezas[gSelectedPieceIndex], cell)) {
         /* we already know that this click was on an empty square,
         so that must mean this was a valid single-square move */
 
