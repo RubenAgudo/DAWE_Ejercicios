@@ -262,7 +262,7 @@ function clickOnEmptyCell(cell) {
         return;
     }
     if ( ( Math.abs(rowDiff) == 2 && Math.abs(columnDiff) == 2)  && 
-        isThereAPieceBetween(piezas[gSelectedPieceIndex], cell) && isLegalMove(piezas[gSelectedIndex], cell) {
+        isThereAPieceBetween(piezas[gSelectedPieceIndex], cell) && isLegalMove(piezas[gSelectedPieceIndex], cell)) {
         /* this was a valid jump */
         if (!gSelectedPieceHasMoved) {
             gMoveCount += 1;
@@ -352,6 +352,14 @@ function getLegalMoves(color) {
             var topeIzq= topeIzquierda(unaPieza);
             var topeDer= topeDerecha(unaPieza);
             var coronada = haCoronado(unaPieza);
+
+            var contrincante;
+            if(color == kBlancas) {
+                contrincante = kNegras;
+            } else {
+                contrincante = kBlancas;
+            }
+
             //Si es una reina hacemos un tipo de comprobacion, si no, hacemos la otra
             if(unaPieza instanceof Reina) {
 
@@ -359,8 +367,6 @@ function getLegalMoves(color) {
                 
                 var direccionFilas = 0;
                 var direccionColumnas = 0;
-                var filasAMoverse = 0;
-                var columnasAMoverse = 0;
 
                 if(color === kBlancas) {
                     direccionFilas--;
@@ -372,44 +378,14 @@ function getLegalMoves(color) {
 
                 if(!topeIzq && !coronada) {
                     direccionColumnas = -1;
-                    if(tablero[unaPieza.row + direccionFilas][unaPieza.column + direccionColumnas] == undefined) {
-                        
-                        toRow = unaPieza.row + direccionFilas;
-                        toColumn = unaPieza.column + direccionColumnas;
-
-                    } else if(tablero[unaPieza.row + direccionFilas][unaPieza.column + direccionColumnas ] == kNegras) {
-                        filasAMoverse = 2;
-                        columnasAMoverse = 2;
-                        if(destinoEstaDentroDeTablero(unaPieza, direccionFilas, direccionColumnas, filasAMoverse, columnasAMoverse) {
-                        
-                            toRow = unaPieza.row + (direccionFilas * 2);
-                            toColumn = unaPieza.column + (direccionColumnas * 2);
-                        }
-
-                         
-                    }
+                    comprobarYMover(legalMoves, direccionFilas, direccionColumnas, unaPieza, contrincante); 
                 }
 
                 if(!topeDer && !coronada) {
-                    if(tablero[unaPieza.row + direccion][unaPieza.column + 1] == undefined) {
-
-                        toRow = unaPieza.row + direccion;
-                        toColumn = unaPieza.column + 1;
-
-                    } else if(tablero[unaPieza.row + direccion][unaPieza.column + 1] == kNegras &&
-                                tablero[unaPieza.row - 2][unaPieza.column + 2] == undefined) {
-
-                        toRow = unaPieza.row - 1;
-                        toColumn = unaPieza.column - 1;
-
-                    }
+                    direccionColumnas = 1;
+                    comprobarYMover(legalMoves, direccionFilas, direccionColumnas, unaPieza, contrincante);
                 }
-
-                legalMoves.push(new Move(
-                            unaPieza.row,
-                            unaPieza.column,
-                            toRow,
-                            toColumn));
+                
             }
            
         }
@@ -419,6 +395,39 @@ function getLegalMoves(color) {
     return legalMoves;
 }
 
+function comprobarYMover(legalMoves, direccionFilas, direccionColumnas, unaPieza, contrincante) {
+    var toRow, toColumn;
+    if(tablero[unaPieza.row + direccionFilas][unaPieza.column + direccionColumnas] === undefined) {
+            
+        toRow = unaPieza.row + direccionFilas;
+        toColumn = unaPieza.column + direccionColumnas;
+
+    } else if(tablero[unaPieza.row + direccionFilas][unaPieza.column + direccionColumnas ] === contrincante) {
+        var filasAMoverse = 2;
+        var columnasAMoverse = 2;
+        var columnaDestino = unaPieza.column +(direccionColumnas * columnasAMoverse);
+        var filaDestino = unaPieza.row + (direccionFilas * filasAMoverse);
+
+        if(destinoEstaDentroDeTablero(filaDestino, columnaDestino)) {
+            if(tablero[filaDestino][columnaDestino] === undefined) {
+                toRow = filaDestino; 
+                toColumn = columnaDestino;
+            }
+        }
+
+         
+    }
+    if(toRow !== undefined && toColumn !== undefined) {
+
+        legalMoves.push(new Move(
+                    unaPieza.row,
+                    unaPieza.column,
+                    toRow,
+                    toColumn));
+    }
+}
+
+
 function topeIzquierda(pieza) {
     return pieza.column == 0;
 }
@@ -427,8 +436,12 @@ function topeDerecha(pieza) {
     return pieza.column == kBoardWidth - 1;
 }
 
-function haCoronado(pieza) {
-    return pieza.row == 0;
+function haCoronado(pieza, color) {
+    if(color === kBlancas) {
+        return pieza.row === 0;
+    } else {
+        return pieza.row === (kBoardHeight - 1);
+    }
 }
 
 function inicializarTablero() {
@@ -472,8 +485,8 @@ function isLegalMove(origen, destino) {
     var ind = 0;
     while(ind < legalMoves.length && !isLegal) {
         var move = legalMoves[ind];
-        if((move.fromRow === origen.row && move.fromColumn === origen.column)&&
-           (move.toRow === destino.row && move.toColumn === destino.column)) {
+        if((move.fromRow === origen.row && move.fromCol === origen.column)&&
+           (move.toRow === destino.row && move.toCol === destino.column)) {
                 isLegal = true;
         }
         ind++;
@@ -481,11 +494,9 @@ function isLegalMove(origen, destino) {
     return isLegal;
 }
 
-function destinoEstaDentroDeTablero(pieza, direccionFilas, direccionColumnas, filasAMoverse, columnasAMoverse) {
-    var columnaDestino = unaPieza.column +(direccionColumnas * columnasAMoverse);
-    var filaDestino = unaPieza.row + (direccionFilas * filasAMoverse);
+function destinoEstaDentroDeTablero(filaDestino, columnaDestino) {
     return ((columnaDestino >= 0 &&
             columnaDestino < kBoardWidth) &&
            (filaDestino >= 0 &&
-            filaDesdino < kBoardHeight))
+            filaDestino < kBoardHeight))
 }
