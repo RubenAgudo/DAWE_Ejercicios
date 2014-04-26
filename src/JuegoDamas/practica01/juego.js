@@ -54,7 +54,7 @@ function gGameInProgress(){
 }
 
 function isTheGameOver(){
-    var legalMoves =[1]; 
+    var legalMoves = getLegalMoves(gTurno); 
     var resultado = false;
     var ganador;
     if(legalMoves.length === 0) {
@@ -64,7 +64,7 @@ function isTheGameOver(){
         } else {
             ganador = "blancas";
         }
-        console.log("Game OVer. Ganan " + ganador);
+        console.log("Game Over. Ganan " + ganador);
     }
 
     return resultado;
@@ -351,7 +351,7 @@ function getLegalMoves(color) {
         
             var topeIzq= topeIzquierda(unaPieza);
             var topeDer= topeDerecha(unaPieza);
-            var coronada = haCoronado(unaPieza);
+            var coronada = haCoronado(unaPieza, color);
 
             var contrincante;
             if(color == kBlancas) {
