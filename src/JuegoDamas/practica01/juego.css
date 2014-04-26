@@ -8,8 +8,18 @@ body {
 	margin: 10px;
 }
 
-div {
-    display: inline;
-    padding: 10px;
-    margin: 10px;
+#negras {
+    float: right;
+}
+
+#blancas {
+    float: left;
+}
+
+#movimientosRealizados {
+    float: clear;
+}
+
+canvas#lienzo {
+    float: left;
 }
