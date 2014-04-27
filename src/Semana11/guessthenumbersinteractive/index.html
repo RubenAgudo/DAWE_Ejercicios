@@ -1,0 +1,35 @@
+<html>
+
+    <head>
+    <script src="websockets2.js"></script>
+        <style >
+            #intentos {
+                float:left;
+                width: 49%;
+            }
+            #resultados {
+                float: right;
+                width:49%;
+            }
+            #input {
+                width:100%;
+            }
+
+        </style>
+    </head>
+
+    <body>
+        <div id="input">
+            <input type="number" id="cajaNumero" />
+            <input type="button" id="enviar" value="enviar" />
+            <p id="ultimoNumRecomendado"></p>
+        </div>
+        <div id="intentos" >
+            <h2>Intentos realizados</h2>
+        </div>
+        <div id="resultados">
+            <h2>Resultados</h2>
+        </div>
+    </body>
+
+</html>
