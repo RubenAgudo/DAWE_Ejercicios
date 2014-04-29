@@ -246,12 +246,7 @@ function clickOnEmptyCell(cell) {
         gSelectedPieceIndex = -1;
         gSelectedPieceHasMoved = false;
 
-        //cambiamos el turno cuando se mueve una pieza y no se come
-        if(gTurno == kBlancas) {
-            gTurno = kNegras;
-        } else {
-            gTurno = kBlancas;
-        }
+        cambiarTurno();
 
         drawBoard();
         mostrarMovimiento(fromRow, 
@@ -277,7 +272,7 @@ function clickOnEmptyCell(cell) {
         piezas[gSelectedPieceIndex].column = cell.column;
         //y por aqui habria que borrar la pieza
         borrarPieza((fromRow + toRow) / 2, (fromColumn + toColumn) / 2);
-
+        cambiarTurno();
         drawBoard();
         mostrarMovimiento(fromRow, 
                 fromColumn,
@@ -499,4 +494,14 @@ function destinoEstaDentroDeTablero(filaDestino, columnaDestino) {
             columnaDestino < kBoardWidth) &&
            (filaDestino >= 0 &&
             filaDestino < kBoardHeight))
+}
+
+function cambiarTurno() {
+
+    //cambiamos el turno cuando se mueve una pieza y no se come
+    if(gTurno == kBlancas) {
+        gTurno = kNegras;
+    } else {
+        gTurno = kBlancas;
+    }
 }

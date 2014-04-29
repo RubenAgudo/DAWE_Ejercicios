@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"> </head>
+<body>
+<script>
+	
+var reloj ;
+var worker;
+
+window.onload = function() {
+ 	var num = 2227644437; 
+    
+    worker = new Worker('worker.js');
+    worker.onmessage = function(event) {
+        clearInterval(reloj);
+        console.log(event.data);
+    }
+
+	var botonMostrar = document.getElementById("mostrar");
+	botonMostrar.onclick = function() {
+		reloj = setInterval(mostrar,100);		
+	};
+
+	var botonCalcular = document.getElementById("calcular");
+    botonCalcular.onclick = function() { 
+        worker.postMessage(num); 
+    };
+
+
+}
+
+function mostrar() {
+	var salida = document.getElementById("salida");
+	salida.innerHTML = salida.innerHTML + " #";
+}
+
+
+</script>
+<div id="salida"></div>
+<form>
+	<input type="button" id="calcular" value="calcular">
+	<input type="button" id="mostrar" value="mostrar">
+</form>
+
+</body>
+</html>
