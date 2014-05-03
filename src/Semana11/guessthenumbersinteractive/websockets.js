@@ -55,7 +55,7 @@ function enviarOnclick() {
 }
 
 window.onload = function() {
-    max = 1000;
+    max = 1464;
     min = 0;
     numIntentos = 0;
     centro = (max + min)/2;

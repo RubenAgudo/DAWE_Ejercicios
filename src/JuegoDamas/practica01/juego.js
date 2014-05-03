@@ -270,7 +270,7 @@ function clickOnEmptyCell(cell) {
         gSelectedPieceHasMoved = true;
         piezas[gSelectedPieceIndex].row = cell.row;
         piezas[gSelectedPieceIndex].column = cell.column;
-        //y por aqui habria que borrar la pieza
+        gSelectedPieceIndex = -1;
         borrarPieza((fromRow + toRow) / 2, (fromColumn + toColumn) / 2);
         cambiarTurno();
         drawBoard();
@@ -397,6 +397,12 @@ function comprobarYMover(legalMoves, direccionFilas, direccionColumnas, unaPieza
         toRow = unaPieza.row + direccionFilas;
         toColumn = unaPieza.column + direccionColumnas;
 
+        legalMoves.push(new Move(
+                    unaPieza.row,
+                    unaPieza.column,
+                    toRow,
+                    toColumn));
+
     } else if(tablero[unaPieza.row + direccionFilas][unaPieza.column + direccionColumnas ] === contrincante) {
         var filasAMoverse = 2;
         var columnasAMoverse = 2;
@@ -407,18 +413,20 @@ function comprobarYMover(legalMoves, direccionFilas, direccionColumnas, unaPieza
             if(tablero[filaDestino][columnaDestino] === undefined) {
                 toRow = filaDestino; 
                 toColumn = columnaDestino;
+
+                legalMoves.unshift(new Move(
+                            unaPieza.row,
+                            unaPieza.column,
+                            toRow,
+                            toColumn));
             }
+
         }
 
          
     }
     if(toRow !== undefined && toColumn !== undefined) {
 
-        legalMoves.push(new Move(
-                    unaPieza.row,
-                    unaPieza.column,
-                    toRow,
-                    toColumn));
     }
 }
 
@@ -477,12 +485,20 @@ function borrarPieza(row, column) {
 function isLegalMove(origen, destino) {
     var legalMoves = getLegalMoves(gTurno);
     var isLegal = false;
+    var youMustEat = Math.abs(legalMoves[0].fromRow - legalMoves[0].toRow) > 1;
+    console.log("youMustEat= " + youMustEat);
     var ind = 0;
+
     while(ind < legalMoves.length && !isLegal) {
         var move = legalMoves[ind];
+
         if((move.fromRow === origen.row && move.fromCol === origen.column)&&
            (move.toRow === destino.row && move.toCol === destino.column)) {
-                isLegal = true;
+                if(Math.abs(move.fromRow - move.toRow) > 1) {
+                    isLegal = true;
+                } else if(!youMustEat) {
+                    isLegal = true;
+                }
         }
         ind++;
     }

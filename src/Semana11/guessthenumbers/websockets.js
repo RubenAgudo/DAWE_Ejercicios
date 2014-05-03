@@ -9,7 +9,7 @@ var respuesta = undefined;
 
 socket.onopen = function() {
 
-    var max = 1000;
+    var max = 1464;
     var min = 0;
 
     var centro = parseInt((max + min)/2);
