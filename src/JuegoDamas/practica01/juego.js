@@ -149,23 +149,28 @@ function cargarPosiciones() {
 		var color = localStorage.getItem("pieza" + i + ".color"); 
 		piezas.push(new Casilla(row, column, color));
 	}
-	drawBoard();
 }
 function newGame() {
+    //intentamos cargar los datos, si no hay piezas, se inicia un nuevo juego
+    cargarPosiciones();
+    if(piezas.length === 0) {
 
-	for (var i=0; i< kFilasIniciales; i++){
+        for (var i=0; i< kFilasIniciales; i++){
 
-		for (var j=(i+1)%2; j < kBoardHeight; j=j+2) {
-			piezas.push(new Casilla(i,j, kNegras));
-		}
-	}
+            for (var j=(i+1)%2; j < kBoardHeight; j=j+2) {
+                piezas.push(new Casilla(i,j, kNegras));
+            }
+        }
 
-	for (var i=kBoardHeight-1; i >= kBoardHeight - kFilasIniciales; i--){
+        for (var i=kBoardHeight-1; i >= kBoardHeight - kFilasIniciales; i--){
 
-		for (var j=(i+1)%2; j < kBoardHeight; j=j+2) {
-			piezas.push(new Casilla(i,j, kBlancas));
-		}
-	}
+            for (var j=(i+1)%2; j < kBoardHeight; j=j+2) {
+                piezas.push(new Casilla(i,j, kBlancas));
+            }
+        }
+    } else {
+        console.log("Saved data not found, starting new game");
+    }
 
     gNumPieces = piezas.length;
     gSelectedPieceIndex = -1;
@@ -268,9 +273,12 @@ function clickOnEmptyCell(cell) {
             toColumn = cell.column,
             color = piezas[gSelectedPieceIndex].color;
         gSelectedPieceHasMoved = true;
+        //movemos la pieza a la casilla destino
         piezas[gSelectedPieceIndex].row = cell.row;
         piezas[gSelectedPieceIndex].column = cell.column;
+        //deseleccionamos la pieza
         gSelectedPieceIndex = -1;
+        //borramos la pieza
         borrarPieza((fromRow + toRow) / 2, (fromColumn + toColumn) / 2);
         cambiarTurno();
         drawBoard();
@@ -328,12 +336,18 @@ function Move(r1, c1, r2, c2) {
 
 }
 
+/**
+ * Clase que representa a una reina,
+ * tecnicamente es igual que una casilla, pero
+ * se podria hacer instanceof para realizar los movimientos
+ * legales
+ */
 function Reina(row, column, color) {
     Casilla.apply(this, [row, column, color]);
 }
 
 /**
- * solo tenemos en cuenta los movimientos posibles de las blancas
+ * Funcion que devuelve los movimientos legales para el turno actual 
  */
 function getLegalMoves(color) {
 
@@ -390,6 +404,10 @@ function getLegalMoves(color) {
     return legalMoves;
 }
 
+/**
+ * Function que comprueba si es un movimiento valido, y en caso de serlo lo inserta en el array
+ * de movimientos validos
+ */
 function comprobarYMover(legalMoves, direccionFilas, direccionColumnas, unaPieza, contrincante) {
     var toRow, toColumn;
     if(tablero[unaPieza.row + direccionFilas][unaPieza.column + direccionColumnas] === undefined) {
@@ -413,7 +431,8 @@ function comprobarYMover(legalMoves, direccionFilas, direccionColumnas, unaPieza
             if(tablero[filaDestino][columnaDestino] === undefined) {
                 toRow = filaDestino; 
                 toColumn = columnaDestino;
-
+                
+                //insertamos la pieza al principio
                 legalMoves.unshift(new Move(
                             unaPieza.row,
                             unaPieza.column,
@@ -430,15 +449,25 @@ function comprobarYMover(legalMoves, direccionFilas, direccionColumnas, unaPieza
     }
 }
 
-
+/**
+ * Comprueba si una pieza esta en el tope izquierdo
+ */
 function topeIzquierda(pieza) {
     return pieza.column == 0;
 }
 
+/**
+ * comprueba si una pieza esta en el tope derecho
+ */
 function topeDerecha(pieza) {
     return pieza.column == kBoardWidth - 1;
 }
 
+/**
+ * Comprueba si una pieza ha coronado,
+ * actualmente solo devuelve si ha coronado, en un futuro
+ * convertiria la pieza actual, en una reina
+ */
 function haCoronado(pieza, color) {
     if(color === kBlancas) {
         return pieza.row === 0;
@@ -447,6 +476,11 @@ function haCoronado(pieza, color) {
     }
 }
 
+/**
+ * Inicializa el tablero bidimensional para poder hacer comprobaciones
+ * de una manera mas sencilla, devuelve un tablero de kBoardHeight x kBoardWidth 
+ * vacio
+ */
 function inicializarTablero() {
     var unTablero = new Array(kBoardWidth);
     for (var i = 0; i < kBoardWidth; i++) {
@@ -472,6 +506,9 @@ function mostrarMovimiento(fromRow, fromColumn, toRow, toColumn, color) {
     movimientosRealizados.appendChild(nuevoMovimiento);
 }
 
+/**
+ * Funcion que borra una pieza de las piezas actuales
+ */
 function borrarPieza(row, column) {
     for (var i = 0; i < piezas.length; i++) {
         var unaPieza = piezas[i];
@@ -482,16 +519,22 @@ function borrarPieza(row, column) {
     };
 }
 
+/**
+ * Comprueba que el movimiento con origen 'origen' y destino 'destino'
+ * es un movimiento legal, ademas tiene en cuenta si hay posibilidad de comer
+ */
 function isLegalMove(origen, destino) {
     var legalMoves = getLegalMoves(gTurno);
     var isLegal = false;
+    //comprobamos si hay posibilidad de comer
     var youMustEat = Math.abs(legalMoves[0].fromRow - legalMoves[0].toRow) > 1;
     console.log("youMustEat= " + youMustEat);
     var ind = 0;
 
     while(ind < legalMoves.length && !isLegal) {
         var move = legalMoves[ind];
-
+        
+        //si el movimiento actual es el realizado y ademas si hay salto o si no hay que comer, es valido
         if((move.fromRow === origen.row && move.fromCol === origen.column)&&
            (move.toRow === destino.row && move.toCol === destino.column)) {
                 if(Math.abs(move.fromRow - move.toRow) > 1) {
@@ -505,6 +548,9 @@ function isLegalMove(origen, destino) {
     return isLegal;
 }
 
+/**
+ * Comprobamos si el destino esta dentro del tablero, para poder mover
+ */
 function destinoEstaDentroDeTablero(filaDestino, columnaDestino) {
     return ((columnaDestino >= 0 &&
             columnaDestino < kBoardWidth) &&
@@ -512,12 +558,16 @@ function destinoEstaDentroDeTablero(filaDestino, columnaDestino) {
             filaDestino < kBoardHeight))
 }
 
+/**
+ * Cambia el turno siempre y guarda el progreso
+ */
 function cambiarTurno() {
 
-    //cambiamos el turno cuando se mueve una pieza y no se come
     if(gTurno == kBlancas) {
         gTurno = kNegras;
     } else {
         gTurno = kBlancas;
     }
+
+    guardarPosiciones();
 }
