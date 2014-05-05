@@ -147,7 +147,9 @@ function cargarPosiciones() {
 		var row = parseInt(localStorage.getItem("pieza" + i + ".fila")); 
 		var column = parseInt(localStorage.getItem("pieza" + i + ".columna")); 
 		var color = localStorage.getItem("pieza" + i + ".color"); 
-		piezas.push(new Casilla(row, column, color));
+        if(row !== NaN && column !== NaN && color !== null && color !== undefined) {
+            piezas.push(new Casilla(row, column, color));
+        }
 	}
 }
 function newGame() {
