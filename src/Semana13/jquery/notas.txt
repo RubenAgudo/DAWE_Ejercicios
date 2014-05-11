@@ -1,0 +1,19 @@
+Notas.txt
+=========
+
+Veo que eres de los que analizan el código y ficheros que encuentras en un directorio...bien, estos enlaces contienen información que te ayudarán a resolver el ejercicio:
+
+http://coursesweb.net/jquery/drag-drop
+
+http://stackoverflow.com/questions/867469/when-i-make-a-draggable-clone-and-drop-it-in-a-droppable-i-cannot-drag-it-again
+
+http://stackoverflow.com/questions/23405845/draggable-is-not-effected-to-current-div
+
+http://stackoverflow.com/questions/20026299/draggable-image-not-coming-inside-the-canvas
+
+http://jsfiddle.net/V92Gn/
+
+http://stackoverflow.com/questions/22375971/allowing-the-drag-after-dropping-an-image-onto-canvas
+
+
+
