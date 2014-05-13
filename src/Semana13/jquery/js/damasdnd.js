@@ -43,13 +43,23 @@ $(document).ready(function() {
     // accede al ID de la ficha que el usuario acaba de soltar
     // y escribe en pantalla, en la capa #ui, el ID de la ficha y su posición en el tablero
     $('img').draggable({
-        helper: 'clone'
+        helper: 'clone',
+        revert: 'invalid'
     }); 
     
     
     $('#lienzo').droppable({
         drop: function(event, ui) {
-            $('#lienzo').append($(ui.helper).clone());
+            var pos = {'left': ui.offset.left, 'top': ui.offset.top};
+            var dpos = $(this).offset();
+            var columna = parseInt(((ui.offset.left + (kPieceHeight / 2) - dpos.left) / kPieceHeight) % kBoardHeight);
+            var fila = parseInt(((ui.offset.top + (kPieceWidth / 2) - dpos.top) / kPieceWidth) % kBoardWidth);
+            $('#ui').append(ui.helper.context.id + " " + fila + ", " + columna + " <br>");
+            
+            var img = new Image();
+            img.src = ui.helper.context.src;
+            
+            gDrawingContext.drawImage(img, columna *  kPieceHeight, fila * kPieceHeight);
         }
         
     });
